@@ -16,12 +16,36 @@
     <ul>
         {% for habito in habitos %}
             <li> 
-                {{ habito.nombre }} - Completado: {{ habito.completado}}
-                <a href = "/completar/{{ habito.id }}">
-                    <button> Completado </button>
+                {% if habito.id in completados_hoy %}
+                    <del>{{ habito.nombre }}</del> - Listo por hoy!
+                {% else %}
+                    {{ habito.nombre }} - Pendiente
+                {% endif %}
+                
+                <div style="margin-top: 5px;">
+                    {% for fecha in fechas_semana %}
+                        
+                        {% set completado_este_dia = false %}
+                        {% for reg in habito.registros %}
+                            {% if reg.fecha == fecha %}
+                                {% set completado_este_dia = true %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if completado_este_dia %}
+                            <span style="display: inline-block; width: 20px; height: 20px; background-color: lightgreen; margin: 2px;" title="{{ fecha }}"></span>
+                        {% else %}
+                            <span style="display: inline-block; width: 20px; height: 20px; background-color: lightgray; margin: 2px;" title="{{ fecha }}"></span>
+                        {% endif %}
+
+                    {% endfor %}
+                </div>
+
+                <a href="/completar/{{ habito.id }}">
+                    <button>Completado</button>
                 </a>
-                <a href = "/eliminar/{{ habito.id }}">
-                    <button> Eliminar </button>
+                <a href="/eliminar/{{ habito.id }}">
+                    <button>Eliminar</button>
                 </a>
             </li>
         {% endfor %}
