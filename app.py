@@ -1,3 +1,4 @@
+import random
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, url_for
@@ -13,6 +14,10 @@ db = SQLAlchemy(app)
 class Habito(db.Model): 
     id = db.Column(db.Integer, primary_key = True)
     nombre = db.Column(db.String(100), nullable = False)
+
+    color_principal = db.Column(db.String(20), nullable = False)
+    color_fondo = db.Column(db.String(20), nullable = False)
+
     registros = db.relationship('Registro', backref = 'habito', lazy = True, cascade = "all, delete-orphan")
 
 class Registro(db.Model):
@@ -39,16 +44,30 @@ def inicio():
 
     ultimos_7_dias.reverse()
 
-    return render_template("index.html", 
-                           habitos = lista_habitos,
-                           completados_hoy = ids_completados_hoy,
-                           fechas_semana = ultimos_7_dias)
+    return render_template(
+        "index.html", 
+        habitos = lista_habitos,
+        completados_hoy = ids_completados_hoy,
+        fechas_semana = ultimos_7_dias
+    )
 
 # Ruta para agregar habitos
 @app.route("/agregar", methods = ["POST"]) 
 def agregar_habito():
     nombre_nuevo = request.form.get("nombre_habito")  
-    nuevo_habito = Habito(nombre = nombre_nuevo)
+
+    r = random.randint(0,200)
+    g = random.randint(0,200)
+    b = random.randint(0,200)
+
+    color_fuerte = f"#{r:02x}{g:02x}{b:02x}"
+    color_suave = f"{color_fuerte}33"
+
+    nuevo_habito = Habito(
+        nombre = nombre_nuevo,
+        color_principal = color_fuerte,
+        color_fondo = color_suave
+    )
     db.session.add(nuevo_habito)
     db.session.commit()  
     return redirect(url_for("inicio"))

@@ -4,6 +4,7 @@
 <head>
     <meta charset = "UTF-8">
     <title>Mi Habit Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 
@@ -15,38 +16,35 @@
     </form>
     <ul>
         {% for habito in habitos %}
-            <li> 
-                {% if habito.id in completados_hoy %}
-                    <del>{{ habito.nombre }}</del> - Listo por hoy!
-                {% else %}
-                    {{ habito.nombre }} - Pendiente
-                {% endif %}
+            <li style="background-color: {{ habito.color_fondo }}; border: 1px solid {{ habito.color_principal }};"> 
+
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    {% if habito.id in completados_hoy %}
+                        <del>{{ habito.nombre }}</del> <span>- Listo por hoy! 🎉</span>
+                    {% else %}
+                        <span>{{ habito.nombre }} - Pendiente</span>
+                    {% endif %}
+                </div>
                 
-                <div style="margin-top: 5px;">
+                {% set fechas_completadas = habito.registros | map(attribute='fecha') | list %}
+                <div style="display: flex; gap: 4px; margin-top: 5px;">
                     {% for fecha in fechas_semana %}
-                        
-                        {% set completado_este_dia = false %}
-                        {% for reg in habito.registros %}
-                            {% if reg.fecha == fecha %}
-                                {% set completado_este_dia = true %}
-                            {% endif %}
-                        {% endfor %}
-
-                        {% if completado_este_dia %}
-                            <span style="display: inline-block; width: 20px; height: 20px; background-color: lightgreen; margin: 2px;" title="{{ fecha }}"></span>
+                        {% if fecha in fechas_completadas %}
+                            <span style="display: inline-block; width: 20px; height: 20px; background-color: {{ habito.color_principal }}; border-radius: 4px;" title="{{ fecha }}"></span>
                         {% else %}
-                            <span style="display: inline-block; width: 20px; height: 20px; background-color: lightgray; margin: 2px;" title="{{ fecha }}"></span>
+                            <span style="display: inline-block; width: 20px; height: 20px; background-color: white; border-radius: 4px; border: 1px solid #ccc;" title="{{ fecha }}"></span>
                         {% endif %}
-
                     {% endfor %}
                 </div>
 
-                <a href="/completar/{{ habito.id }}">
-                    <button>Completado</button>
-                </a>
-                <a href="/eliminar/{{ habito.id }}">
-                    <button>Eliminar</button>
-                </a>
+                <div style="margin-top: 10px;">
+                    <a href="/completar/{{ habito.id }}">
+                        <button style="background-color: {{ habito.color_principal }}; color: white;">Completado</button>
+                    </a>
+                    <a href="/eliminar/{{ habito.id }}">
+                        <button style="background-color: #ff4d4d; color: white;">Eliminar</button>
+                    </a>
+                </div>
             </li>
         {% endfor %}
     </ul>
